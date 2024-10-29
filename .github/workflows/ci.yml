@@ -17,6 +17,10 @@ jobs:
   test-javascript:
     name: JavaScript Tests
     runs-on: ubuntu-latest
+    permissions: # Advanced permission for ArtiomTr/jest-coverage-report-action
+      checks: write
+      pull-requests: write
+      contents: write
 
     steps:
       - name: Checkout
@@ -44,7 +48,24 @@ jobs:
 
       - name: Test
         id: npm-ci-test
-        run: npm run ci-test
+        uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          skip-step: install
+
+      - name: Publish Coverage Report to Coveralls.io
+        if: always() && hashFiles('coverage/**') != ''
+        uses: coverallsapp/github-action@v2
+
+      - name: Testspace client install & config
+        id: testspace_init
+        if: always() && hashFiles('test-results/**') != ''
+        uses: testspace-com/setup-testspace@v1
+        with:
+          domain: ${{github.repository_owner}}
+
+      - name: Testspace push test content
+        if: always() && (steps.testspace_init.outcome == 'success')
+        run: testspace "./test-results/*.xml" --link=coveralls
 
   test-action:
     name: GitHub Actions Test

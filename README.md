@@ -2,6 +2,8 @@
 
 [![GitHub Super-Linter](https://github.com/actions/javascript-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
 ![CI](https://github.com/actions/javascript-action/actions/workflows/ci.yml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/fletort/branch-protection-action/badge.svg?branch=main)](https://coveralls.io/github/fletort/branch-protection-action?branch=main)
+[![Testspace tests count](https://img.shields.io/testspace/total/fletort/fletort%3Ajinja2-template-action/main)](https://fletort.testspace.com/projects/68237/spaces)
 
 Use this template to bootstrap the creation of a JavaScript action. :rocket:
 
