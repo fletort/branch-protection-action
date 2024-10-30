@@ -1,3 +1,6 @@
+# Test directory
+test-results
+
 # Dependency directory
 node_modules
 

@@ -65,23 +65,105 @@ jobs:
 
       - name: Testspace push test content
         if: always() && (steps.testspace_init.outcome == 'success')
-        run: testspace "./test-results/*.xml" --link=coveralls
+        run: |
+          output="$(testspace "[Unit Tests]./test-results/*.xml" --link=coveralls)"
+          REGEX="(https://[a-z0-9]+.testspace.com/spaces/[0-9]+/result_sets/[0-9]+)"
+          [[ $output =~ $REGEX ]]
+          result_set_link="${BASH_REMATCH[1]}"
+          echo "[TestSpace Integ Test Result set]($result_set_link)" >> "$GITHUB_STEP_SUMMARY"
 
   test-action:
     name: GitHub Actions Test
     runs-on: ubuntu-latest
+    env:
+      TEST_REPO_NAME: branch-protection-action-test
+      TEST_REPO_ORG: fletort-test
 
     steps:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
 
-      - name: Test Local Action
+      - name: Prerequesite - Clean Previous Test Data
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+        run: |
+          gh repo delete ${{ env.TEST_REPO_ORG }}/${{ env.TEST_REPO_NAME }} --yes || true
+
+      - name: Prerequesite - Create Test Repository
+        uses: f1lander/create-repository-action@v1.0.2
+        with:
+          name: '${{ env.TEST_REPO_NAME }}'
+          org: '${{ env.TEST_REPO_ORG }}'
+          access-token: '${{ secrets.TEST_TOKEN }}'
+
+      - name: Prerequesite - Checkout Test Repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TEST_REPO_ORG }}/${{ env.TEST_REPO_NAME }}
+          path: ${{ env.TEST_REPO_NAME }}
+          token: ${{ secrets.TEST_TOKEN }}
+
+      - name: Prerequesite - Create Content For New Branch
+        run: |
+          touch ${{ env.TEST_REPO_NAME }}/another-branch-txt
+
+      - name: Commit & Push changes To AnotherBranch in the Test Repository
+        uses: actions-js/push@master
+        with:
+          github_token: '${{ secrets.TEST_TOKEN }}'
+          repository: ${{ env.TEST_REPO_ORG }}/${{ env.TEST_REPO_NAME }}
+          directory: ${{ env.TEST_REPO_NAME }}
+          branch: anotherBranch
+
+      - name: Run Local Action
         id: test-action
         uses: ./
         with:
-          milliseconds: 1000
+          owner: '${{ env.TEST_REPO_ORG }}'
+          repository: '${{ env.TEST_REPO_NAME }}'
+          token: '${{ secrets.TEST_TOKEN }}'
+          branches: |
+            develop:
+            feature:
+              permission:
+                required_status_checks:
+                enforce_admins: true
+                required_pull_request_reviews: {
+                  "required_approving_review_count": 0
+                }
+                restrictions:  
+            toto:
+              baseBranch: anotherBranch
 
-      - name: Print Output
-        id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
+      - name: Install bats
+        run: ./test/install_bats.sh
+
+      - name: Test Waited Results
+        id: test-action-result
+        env:
+          GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+        run: |
+          ./test/bats/bin/bats --report-formatter junit test/test_action.bats
+
+      - name: Testspace client install & config
+        id: testspace_init
+        uses: testspace-com/setup-testspace@v1
+        with:
+          domain: ${{ github.repository_owner }}
+
+      - name: Testspace push test content
+        run: |
+          output="$(testspace "[Integ Tests]./report.xml")"
+          REGEX="(https://[a-z0-9]+.testspace.com/spaces/[0-9]+/result_sets/[0-9]+)"
+          [[ $output =~ $REGEX ]]
+          result_set_link="${BASH_REMATCH[1]}"
+          echo "[TestSpace Integ Test Result set]($result_set_link)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Clean Test Data
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+        run: |
+          gh repo delete ${{ env.TEST_REPO_ORG }}/${{ env.TEST_REPO_NAME }} --yes || true

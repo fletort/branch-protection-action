@@ -10,87 +10,224 @@ const getInputMock = jest.spyOn(core, 'getInput').mockImplementation()
 const setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
 const setOutputMock = jest.spyOn(core, 'setOutput').mockImplementation()
 
-// Mock the action's main function
-const runMock = jest.spyOn(main, 'run')
+// Mock internal Definition Parser library
+const { load } = require('../src/definition')
+jest.mock('../src/definition')
 
-// Other utilities
-const timeRegex = /^\d{2}:\d{2}:\d{2}/
+// Mock internal GitHub Library
+const { GitHub } = require('../src/github')
+const mockCreateBranch = jest.fn()
+const mockSetBranchPermission = jest.fn()
+jest.mock('../src/github', () => {
+  return {
+    GitHub: jest.fn().mockImplementation(() => {
+      return {
+        createBranch: mockCreateBranch,
+        setBranchPermission: mockSetBranchPermission
+      }
+    })
+  }
+})
+
+// Mock the tested action's main function
+const runMock = jest.spyOn(main, 'run')
 
 describe('action', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  it('sets the time output', async () => {
+  it('Parse the given definition, Create the Branch on the default base branch then Apply the given Permission', async () => {
     // Set the action's inputs as return values from core.getInput()
     getInputMock.mockImplementation(name => {
       switch (name) {
-        case 'milliseconds':
-          return '500'
+        case 'owner':
+          return 'MyTestOwner'
+        case 'repository':
+          return 'MyTestRepo'
+        case 'token':
+          return 'MyTestToken'
+        case 'branches':
+          return 'MyDefinition'
+        case 'default_base_branch':
+          return 'main'
         default:
           return ''
       }
     })
+    load.mockImplementation(() =>
+      Promise.resolve({
+        develop: {
+          permission: 'MY_PERMISSION_DEF'
+        }
+      })
+    )
 
     await main.run()
     expect(runMock).toHaveReturned()
-
-    // Verify that all of the core library functions were called correctly
-    expect(debugMock).toHaveBeenNthCalledWith(1, 'Waiting 500 milliseconds ...')
-    expect(debugMock).toHaveBeenNthCalledWith(
-      2,
-      expect.stringMatching(timeRegex)
+    expect(GitHub).toHaveBeenCalledWith(
+      'MyTestOwner',
+      'MyTestRepo',
+      'MyTestToken'
     )
-    expect(debugMock).toHaveBeenNthCalledWith(
-      3,
-      expect.stringMatching(timeRegex)
+    expect(load).toHaveBeenCalledWith('MyDefinition')
+    expect(mockCreateBranch).toHaveBeenCalledWith('develop', 'main')
+    expect(mockSetBranchPermission).toHaveBeenCalledWith(
+      'develop',
+      'MY_PERMISSION_DEF'
     )
-    expect(setOutputMock).toHaveBeenNthCalledWith(
-      1,
-      'time',
-      expect.stringMatching(timeRegex)
-    )
+    expect(setFailedMock).not.toHaveBeenCalled()
   })
 
-  it('sets a failed status', async () => {
+  it('Parse the given definition, Create the Branch on the specific base branch then Apply the given Permission', async () => {
     // Set the action's inputs as return values from core.getInput()
     getInputMock.mockImplementation(name => {
       switch (name) {
-        case 'milliseconds':
-          return 'this is not a number'
+        case 'owner':
+          return 'MyTestOwner'
+        case 'repository':
+          return 'MyTestRepo'
+        case 'token':
+          return 'MyTestToken'
+        case 'branches':
+          return 'MyDefinition'
+        case 'default_base_branch':
+          return 'main'
         default:
           return ''
       }
     })
+    load.mockImplementation(() =>
+      Promise.resolve({
+        develop: {
+          baseBranch: 'MySpecificBaseBranch',
+          permission: 'MY_PERMISSION_DEF'
+        }
+      })
+    )
 
     await main.run()
     expect(runMock).toHaveReturned()
-
-    // Verify that all of the core library functions were called correctly
-    expect(setFailedMock).toHaveBeenNthCalledWith(
-      1,
-      'milliseconds not a number'
+    expect(GitHub).toHaveBeenCalledWith(
+      'MyTestOwner',
+      'MyTestRepo',
+      'MyTestToken'
     )
+    expect(load).toHaveBeenCalledWith('MyDefinition')
+    expect(mockCreateBranch).toHaveBeenCalledWith(
+      'develop',
+      'MySpecificBaseBranch'
+    )
+    expect(mockSetBranchPermission).toHaveBeenCalledWith(
+      'develop',
+      'MY_PERMISSION_DEF'
+    )
+    expect(setFailedMock).not.toHaveBeenCalled()
   })
 
-  it('fails if no input is provided', async () => {
+  it('Dont create permission when permission is not given for a branch', async () => {
     // Set the action's inputs as return values from core.getInput()
     getInputMock.mockImplementation(name => {
       switch (name) {
-        case 'milliseconds':
-          throw new Error('Input required and not supplied: milliseconds')
+        case 'owner':
+          return 'MyTestOwner'
+        case 'repository':
+          return 'MyTestRepo'
+        case 'token':
+          return 'MyTestToken'
+        case 'branches':
+          return 'MyDefinition'
+        case 'default_base_branch':
+          return 'main'
         default:
           return ''
       }
     })
+    load.mockImplementation(() =>
+      Promise.resolve({
+        develop: {
+          baseBranch: 'MySpecificBaseBranch'
+        }
+      })
+    )
 
     await main.run()
     expect(runMock).toHaveReturned()
-
-    // Verify that all of the core library functions were called correctly
-    expect(setFailedMock).toHaveBeenNthCalledWith(
-      1,
-      'Input required and not supplied: milliseconds'
+    expect(GitHub).toHaveBeenCalledWith(
+      'MyTestOwner',
+      'MyTestRepo',
+      'MyTestToken'
     )
+    expect(load).toHaveBeenCalledWith('MyDefinition')
+    expect(mockCreateBranch).toHaveBeenCalledWith(
+      'develop',
+      'MySpecificBaseBranch'
+    )
+    expect(mockSetBranchPermission).not.toHaveBeenCalled()
+    expect(setFailedMock).not.toHaveBeenCalled()
+  })
+
+  it('Dont create permission when nothing is given for a branch', async () => {
+    // Set the action's inputs as return values from core.getInput()
+    getInputMock.mockImplementation(name => {
+      switch (name) {
+        case 'owner':
+          return 'MyTestOwner'
+        case 'repository':
+          return 'MyTestRepo'
+        case 'token':
+          return 'MyTestToken'
+        case 'branches':
+          return 'MyDefinition'
+        case 'default_base_branch':
+          return 'main'
+        default:
+          return ''
+      }
+    })
+    load.mockImplementation(() =>
+      Promise.resolve({
+        develop: null
+      })
+    )
+
+    await main.run()
+    expect(runMock).toHaveReturned()
+    expect(GitHub).toHaveBeenCalledWith(
+      'MyTestOwner',
+      'MyTestRepo',
+      'MyTestToken'
+    )
+    expect(load).toHaveBeenCalledWith('MyDefinition')
+    expect(mockCreateBranch).toHaveBeenCalledWith('develop', 'main')
+    expect(mockSetBranchPermission).not.toHaveBeenCalled()
+    expect(setFailedMock).not.toHaveBeenCalled()
+  })
+
+  it('Fail when error occurs', async () => {
+    // Set the action's inputs as return values from core.getInput()
+    getInputMock.mockImplementation(name => {
+      switch (name) {
+        case 'owner':
+          return 'MyTestOwner'
+        case 'repository':
+          return 'MyTestRepo'
+        case 'token':
+          return 'MyTestToken'
+        case 'branches':
+          return 'MyDefinition'
+        case 'default_base_branch':
+          return 'main'
+        default:
+          return ''
+      }
+    })
+    load.mockImplementation(() => {
+      throw new Error('MyTestDescriptionError')
+    })
+
+    await main.run()
+    expect(runMock).toHaveReturned()
+    expect(setFailedMock).toHaveBeenCalledWith('MyTestDescriptionError')
   })
 })
