@@ -1,19 +1,33 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Branch Protection'
+description: 'Manage Branch Protection'
+author: 'fletort'
 
-# Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
+  owner:
+    description: 'Repository Owner/Organization.'
     required: true
-    default: '1000'
-
-# Define your outputs here.
-outputs:
-  time:
-    description: 'Your output description here'
+  repository:
+    description:
+      'Repository Name where branches must be managed. Indicate the repository
+      name without owner.'
+    required: true
+  branches:
+    description:
+      List of branches to create and associated protection. Can be a path to a
+      local file. Can be a http link to a remote file. Can be directly the
+      definition. This definitions can be in yaml or json format.
+    required: true
+  token:
+    description: Token with Repository Administration permission
+    required: true
+  default_base_branch:
+    description: The default base branch used for all created branches
+    default: main
 
 runs:
   using: node20
   main: dist/index.js
+
+branding:
+  icon: 'activity'
+  color: 'blue'

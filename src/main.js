@@ -1,5 +1,6 @@
 const core = require('@actions/core')
-const { wait } = require('./wait')
+const { load } = require('./definition')
+const { GitHub } = require('./github')
 
 /**
  * The main function for the action.
@@ -7,18 +8,49 @@ const { wait } = require('./wait')
  */
 async function run() {
   try {
-    const ms = core.getInput('milliseconds', { required: true })
+    const def = core.getInput('branches', { required: true })
+    const owner = core.getInput('owner', { required: true })
+    const repo = core.getInput('repository', { required: true })
+    const token = core.getInput('token', { required: true })
+    const defaultBaseBranch = core.getInput('default_base_branch', {
+      required: true
+    })
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    const github = new GitHub(owner, repo, token)
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    // Get Definitions
+    const definitions = await load(def)
+    if (definitions == null) {
+      core.setFailed('branches definition is not valid')
+      return
+    }
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    for (const branch of Object.keys(definitions)) {
+      const definition = definitions[branch]
+      core.info(`Manage branch: ${branch}`)
+      let baseBranch = defaultBaseBranch
+
+      if (definition) {
+        try {
+          const testDict = 'baseBranch' in definition
+        } catch (error) {
+          core.debug(`Dict test error: ${error.message}`)
+          core.setFailed('branches input content is not valid')
+          return
+        }
+      }
+
+      if (definition && 'baseBranch' in definition) {
+        baseBranch = definition.baseBranch
+        core.debug(`base branch is defined: ${baseBranch}`)
+      }
+      await github.createBranch(branch, baseBranch)
+
+      if (definition && 'permission' in definition) {
+        core.info(`Define Permission`)
+        await github.setBranchPermission(branch, definition.permission)
+      }
+    }
   } catch (error) {
     // Fail the workflow run if an error occurs
     core.setFailed(error.message)
