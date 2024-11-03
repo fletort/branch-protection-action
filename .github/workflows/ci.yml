@@ -6,9 +6,9 @@ on:
       - main
       - develop
   push:
-    branches:
-      - main
-      - develop
+    # branches:
+    #   - main
+    #   - develop
 
 permissions:
   contents: read
@@ -121,8 +121,7 @@ jobs:
         id: test-action
         uses: ./
         with:
-          owner: '${{ env.TEST_REPO_ORG }}'
-          repository: '${{ env.TEST_REPO_NAME }}'
+          repository: ${{ env.TEST_REPO_ORG }}/${{ env.TEST_REPO_NAME }}
           token: '${{ secrets.TEST_TOKEN }}'
           branches: |
             develop:

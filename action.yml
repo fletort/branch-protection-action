@@ -3,9 +3,6 @@ description: 'Manage Branch Protection'
 author: 'fletort'
 
 inputs:
-  owner:
-    description: 'Repository Owner/Organization.'
-    required: true
   repository:
     description:
       'Repository Name where branches must be managed. Indicate the repository
