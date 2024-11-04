@@ -2,9 +2,10 @@
 
 Action used to create branches and optional associated protection.
 
-[![GitHub Super-Linter](https://github.com/actions/javascript-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
-![CI](https://github.com/actions/javascript-action/actions/workflows/ci.yml/badge.svg)
+[![GitHub Super-Linter](https://github.com/actions/branch-protection-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
+[![Unit Tests](https://github.com/fletort/branch-protection-action/actions/workflows/unit-test.yml/badge.svg)](https://github.com/fletort/branch-protection-action/actions/workflows/unit-test.yml)
 [![Coverage Status](https://coveralls.io/repos/github/fletort/branch-protection-action/badge.svg?branch=main)](https://coveralls.io/github/fletort/branch-protection-action?branch=main)
+[![Integration Tests](https://github.com/fletort/branch-protection-action/actions/workflows/integ-test.yml/badge.svg)](https://github.com/fletort/branch-protection-action/actions/workflows/integ-test.yml)
 [![Testspace tests count](https://img.shields.io/testspace/total/fletort/fletort%3Ajinja2-template-action/main)](https://fletort.testspace.com/projects/68237/spaces)
 
 ## Behaviour
@@ -29,8 +30,7 @@ The definition is wrote directly in the action inputs.
 ```yaml
 - uses: fletort/branch-protection-action@v1
   with:
-    owner: the_owner
-    repository: the_repo_name
+    repository: the_owner/the_repo_name
     token: ${{ secrets.token }}
     branches: |
       develop:
@@ -54,8 +54,7 @@ version in the format `@v1.x.x` or `@v1.x`.
 
 | Name                | Description                                                                                                                                                               | Default      |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| owenr               | Owner (organization) of the repository                                                                                                                                    | **Required** |
-| repository          | Repository Name                                                                                                                                                           | **Required** |
+| repository          | Repository to create and/or init. Indicate the repository name with owner.                                                                                                | **Required** |
 | branches            | JSON or YAML branches description. The definition can be directly done, through a local file or a distant one (web link). [See description below](#branches-description). | **Required** |
 | token               | Token with the Content and Repository Administation write permission. [See below](#token)                                                                                 | **Required** |
 | default_base_branch | The branch used by default to create new branch listed by `branches` input. Can be ovveriden by the `branches` description.                                               | `main`       |
@@ -119,8 +118,7 @@ or a remote file:
 ```yaml
 - uses: fletort/branch-protection-action@v1
   with:
-    owner: the_owner
-    repository: the_repo_name
+    repository: the_owner/the_repo_name
     token: ${{ secrets.token }}
     branches: ./my_local_definition.json
 ```
@@ -132,8 +130,7 @@ For example we can use the file available on anoter repository:
 ```yaml
 - uses: fletort/branch-protection-action@v1
   with:
-    owner: the_owner
-    repository: the_repo_name
+    repository: the_owner/the_repo_name
     token: ${{ secrets.token }}
     branches: https://raw.githubusercontent.com/owner/anoter-repo/refs/heads/main/branch-perm.yml
 ```
