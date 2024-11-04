@@ -2,9 +2,10 @@
 
 Action used to create branches and optional associated protection.
 
-[![GitHub Super-Linter](https://github.com/actions/javascript-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
-![CI](https://github.com/actions/javascript-action/actions/workflows/ci.yml/badge.svg)
+[![GitHub Super-Linter](https://github.com/actions/branch-protection-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
+[![Unit Tests](https://github.com/fletort/branch-protection-action/actions/workflows/unit-test.yml/badge.svg)](https://github.com/fletort/branch-protection-action/actions/workflows/unit-test.yml)
 [![Coverage Status](https://coveralls.io/repos/github/fletort/branch-protection-action/badge.svg?branch=main)](https://coveralls.io/github/fletort/branch-protection-action?branch=main)
+[![Integration Tests](https://github.com/fletort/branch-protection-action/actions/workflows/integ-test.yml/badge.svg)](https://github.com/fletort/branch-protection-action/actions/workflows/integ-test.yml)
 [![Testspace tests count](https://img.shields.io/testspace/total/fletort/fletort%3Ajinja2-template-action/main)](https://fletort.testspace.com/projects/68237/spaces)
 
 ## Behaviour
