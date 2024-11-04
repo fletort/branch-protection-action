@@ -9,12 +9,19 @@ const { GitHub } = require('./github')
 async function run() {
   try {
     const def = core.getInput('branches', { required: true })
-    const owner = core.getInput('owner', { required: true })
-    const repo = core.getInput('repository', { required: true })
+    const full_repo = core.getInput('repository', { required: true })
     const token = core.getInput('token', { required: true })
     const defaultBaseBranch = core.getInput('default_base_branch', {
       required: true
     })
+
+    const match = full_repo.match(/^(?<owner>[\w.-]+)\/(?<name>[\w.-]+)/)
+    if (!match || !(match.groups?.owner && match.groups?.name)) {
+      core.setFailed('branches definition is not valid')
+      return
+    }
+    const owner = match.groups.owner
+    const repo = match.groups.name
 
     const github = new GitHub(owner, repo, token)
 

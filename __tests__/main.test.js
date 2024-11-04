@@ -41,10 +41,8 @@ describe('action', () => {
     // Set the action's inputs as return values from core.getInput()
     getInputMock.mockImplementation(name => {
       switch (name) {
-        case 'owner':
-          return 'MyTestOwner'
         case 'repository':
-          return 'MyTestRepo'
+          return 'MyTestOwner/MyTestRepo'
         case 'token':
           return 'MyTestToken'
         case 'branches':
@@ -83,10 +81,8 @@ describe('action', () => {
     // Set the action's inputs as return values from core.getInput()
     getInputMock.mockImplementation(name => {
       switch (name) {
-        case 'owner':
-          return 'MyTestOwner'
         case 'repository':
-          return 'MyTestRepo'
+          return 'MyTestOwner/MyTestRepo'
         case 'token':
           return 'MyTestToken'
         case 'branches':
@@ -129,10 +125,8 @@ describe('action', () => {
     // Set the action's inputs as return values from core.getInput()
     getInputMock.mockImplementation(name => {
       switch (name) {
-        case 'owner':
-          return 'MyTestOwner'
         case 'repository':
-          return 'MyTestRepo'
+          return 'MyTestOwner/MyTestRepo'
         case 'token':
           return 'MyTestToken'
         case 'branches':
@@ -171,10 +165,8 @@ describe('action', () => {
     // Set the action's inputs as return values from core.getInput()
     getInputMock.mockImplementation(name => {
       switch (name) {
-        case 'owner':
-          return 'MyTestOwner'
         case 'repository':
-          return 'MyTestRepo'
+          return 'MyTestOwner/MyTestRepo'
         case 'token':
           return 'MyTestToken'
         case 'branches':
@@ -208,10 +200,8 @@ describe('action', () => {
     // Set the action's inputs as return values from core.getInput()
     getInputMock.mockImplementation(name => {
       switch (name) {
-        case 'owner':
-          return 'MyTestOwner'
         case 'repository':
-          return 'MyTestRepo'
+          return 'MyTestOwner/MyTestRepo'
         case 'token':
           return 'MyTestToken'
         case 'branches':
@@ -229,5 +219,27 @@ describe('action', () => {
     await main.run()
     expect(runMock).toHaveReturned()
     expect(setFailedMock).toHaveBeenCalledWith('MyTestDescriptionError')
+  })
+
+  it('Fail when malformatted repository is given', async () => {
+    // Set the action's inputs as return values from core.getInput()
+    getInputMock.mockImplementation(name => {
+      switch (name) {
+        case 'repository':
+          return 'MyTestOwner'
+        case 'token':
+          return 'MyTestToken'
+        case 'branches':
+          return 'MyDefinition'
+        case 'default_base_branch':
+          return 'main'
+        default:
+          return ''
+      }
+    })
+
+    await main.run()
+    expect(runMock).toHaveReturned()
+    expect(setFailedMock).toHaveBeenCalled()
   })
 })
