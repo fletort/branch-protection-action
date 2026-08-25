@@ -4,7 +4,7 @@ updates:
     directory: /
     target-branch: develop
     schedule:
-      interval: weekly
+      interval: daily
     groups:
       actions-minor:
         update-types:
@@ -15,7 +15,7 @@ updates:
     directory: /
     target-branch: develop
     schedule:
-      interval: weekly
+      interval: daily
     groups:
       npm-development:
         dependency-type: development
