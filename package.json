@@ -13,9 +13,7 @@
     "url": "https://github.com/actions/javascript-action/issues"
   },
   "keywords": [
-    "GitHub",
-    "Actions",
-    "JavaScript"
+    "action"
   ],
   "exports": {
     ".": "./dist/index.js"
