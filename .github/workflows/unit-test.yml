@@ -48,6 +48,7 @@ jobs:
         uses: ArtiomTr/jest-coverage-report-action@v2
         with:
           skip-step: install
+          test-script: npm run ci-test
 
       - name: Publish Coverage Report to Coveralls.io
         if: always() && hashFiles('coverage/**') != ''

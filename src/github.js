@@ -1,6 +1,6 @@
-const { Octokit } = require('@octokit/rest')
+import { Octokit } from '@octokit/rest'
 
-class GitHub {
+export class GitHub {
   constructor(owner, repo, token) {
     this.octokit = new Octokit({
       auth: token
@@ -87,5 +87,3 @@ class GitHub {
     }
   }
 }
-
-module.exports = { GitHub }

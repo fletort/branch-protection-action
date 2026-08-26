@@ -1,31 +1,22 @@
 /**
- * Unit tests for src/definition.js
+ * Unit tests for src/github.js
  */
-const { GitHub } = require('../src/github')
-const { expect } = require('@jest/globals')
+import { jest, expect } from '@jest/globals'
+// Import mock fixtures
+import * as octokitFixture from '../__fixtures__/octokit.js'
+
+// 1. Mocks should be declared before the module being tested is imported.
 
 // Mock the Octokit library
-const { Octokit } = require('@octokit/rest')
-const mockgetRef = jest.fn()
-const mockcreateRef = jest.fn()
-const mockupdateBranchProtection = jest.fn()
-jest.mock('@octokit/rest', () => {
-  return {
-    Octokit: jest.fn().mockImplementation(() => {
-      return {
-        rest: {
-          git: {
-            getRef: mockgetRef,
-            createRef: mockcreateRef
-          },
-          repos: {
-            updateBranchProtection: mockupdateBranchProtection
-          }
-        }
-      }
-    })
-  }
-})
+jest.unstable_mockModule('@octokit/rest', () => octokitFixture)
+
+// 2. Import dynamically Mocked Modules
+const { Octokit } = await import('@octokit/rest')
+const { mockgetRef, mockcreateRef, mockupdateBranchProtection } = octokitFixture
+
+// 3. The module being tested should be imported dynamically.
+const githubModule = await import('../src/github.js')
+const { GitHub } = githubModule
 
 describe('Github.constuct', () => {
   it('Github class save owner/repo and istanciate Octokit class with token inforamtion', () => {
@@ -104,7 +95,7 @@ describe('Github.createBranch', () => {
   })
 
   it('Create a new branch on a correct base branch without error', async () => {
-    mockgetRef.mockImplementation(async d => {
+    mockgetRef.mockImplementation(async (d) => {
       if (d.ref === 'heads/TestBranch')
         return Promise.resolve({ status: 404, data: 'ref description' })
       if (d.ref === 'heads/BaseBranch')
@@ -135,7 +126,7 @@ describe('Github.createBranch', () => {
   })
 
   it('Throw exception when branch creation is not succefull', async () => {
-    mockgetRef.mockImplementation(async d => {
+    mockgetRef.mockImplementation(async (d) => {
       if (d.ref === 'heads/TestBranch')
         return Promise.resolve({ status: 404, data: 'ref description' })
       if (d.ref === 'heads/BaseBranch')
