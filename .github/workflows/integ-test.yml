@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - develop
+  push:
+    branches:
+      - main
+      - develop
 
 permissions:
   contents: read
@@ -70,7 +74,7 @@ jobs:
                 required_pull_request_reviews: {
                   "required_approving_review_count": 0
                 }
-                restrictions:  
+                restrictions:
             toto:
               baseBranch: anotherBranch
 
