@@ -160,7 +160,7 @@ describe('Github.createBranch', () => {
 })
 
 describe('Github.setBranchPermission', () => {
-  it('SetBranchPermission add information to send parameter and return normaly when succesfull', async () => {
+  it('SetBranchPermission add information to send parameter and return normally when succesfull', async () => {
     mockupdateBranchProtection.mockImplementation(async () =>
       Promise.resolve({ status: 200 })
     )

@@ -1,11 +1,11 @@
 import { jest } from '@jest/globals'
 
-// 1. Déclarer et exporter les espions individuels
+// 1. Define and export individual mock
 export const mockgetRef = jest.fn()
 export const mockcreateRef = jest.fn()
 export const mockupdateBranchProtection = jest.fn()
 
-// 2. Déclarer et exporter la classe Octokit mockée
+// 2. Define and export the mocked Octokit class
 export const Octokit = jest.fn().mockImplementation(() => {
   return {
     rest: {

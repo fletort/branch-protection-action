@@ -17,7 +17,7 @@ jest.unstable_mockModule('@actions/core', () => coreFixture)
 // Mock internal Definition Parser library
 jest.unstable_mockModule('../src/definition.js', () => {
   return {
-    load: jest.fn() // Ajouté comme fonction mockée de base
+    load: jest.fn() // Add as a basic mocked function
   }
 })
 

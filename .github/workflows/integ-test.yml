@@ -26,28 +26,28 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
 
-      - name: Prerequesite - Clean Previous Test Data
+      - name: Prerequisite - Clean Previous Test Data
         if: always()
         env:
           GH_TOKEN: ${{ secrets.TEST_TOKEN }}
         run: |
           gh repo delete ${{ env.TEST_REPO_ORG }}/${{ env.TEST_REPO_NAME }} --yes || true
 
-      - name: Prerequesite - Create Test Repository
+      - name: Prerequisite - Create Test Repository
         uses: f1lander/create-repository-action@v1.0.2
         with:
           name: '${{ env.TEST_REPO_NAME }}'
           org: '${{ env.TEST_REPO_ORG }}'
           access-token: '${{ secrets.TEST_TOKEN }}'
 
-      - name: Prerequesite - Checkout Test Repository
+      - name: Prerequisite - Checkout Test Repository
         uses: actions/checkout@v4
         with:
           repository: ${{ env.TEST_REPO_ORG }}/${{ env.TEST_REPO_NAME }}
           path: ${{ env.TEST_REPO_NAME }}
           token: ${{ secrets.TEST_TOKEN }}
 
-      - name: Prerequesite - Create Content For New Branch
+      - name: Prerequisite - Create Content For New Branch
         run: |
           touch ${{ env.TEST_REPO_NAME }}/another-branch-txt
 
