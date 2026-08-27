@@ -2,6 +2,10 @@ name: 'Branch Creation/Protection'
 description: 'Manage Branch Protection'
 author: 'fletort'
 
+branding:
+  icon: 'activity'
+  color: 'blue'
+
 inputs:
   repository:
     description:
@@ -22,9 +26,5 @@ inputs:
     default: main
 
 runs:
-  using: node20
+  using: node24
   main: dist/index.js
-
-branding:
-  icon: 'activity'
-  color: 'blue'

@@ -24,35 +24,38 @@ jobs:
     steps:
       - name: Checkout
         id: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
-      - name: Prerequesite - Clean Previous Test Data
+      - name: Prerequisite - Clean Previous Test Data
         if: always()
         env:
           GH_TOKEN: ${{ secrets.TEST_TOKEN }}
         run: |
           gh repo delete ${{ env.TEST_REPO_ORG }}/${{ env.TEST_REPO_NAME }} --yes || true
 
-      - name: Prerequesite - Create Test Repository
-        uses: f1lander/create-repository-action@v1.0.2
+      - name: Prerequisite - Create Test Repository
+        uses: f1lander/create-repository-action@790b25d255717b5a81416a8390f3344396181805 # v1.0.2
         with:
           name: '${{ env.TEST_REPO_NAME }}'
           org: '${{ env.TEST_REPO_ORG }}'
           access-token: '${{ secrets.TEST_TOKEN }}'
 
-      - name: Prerequesite - Checkout Test Repository
-        uses: actions/checkout@v4
+      - name: Prerequisite - Checkout Test Repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: ${{ env.TEST_REPO_ORG }}/${{ env.TEST_REPO_NAME }}
           path: ${{ env.TEST_REPO_NAME }}
           token: ${{ secrets.TEST_TOKEN }}
+          persist-credentials: false
 
-      - name: Prerequesite - Create Content For New Branch
+      - name: Prerequisite - Create Content For New Branch
         run: |
           touch ${{ env.TEST_REPO_NAME }}/another-branch-txt
 
       - name: Commit & Push changes To AnotherBranch in the Test Repository
-        uses: actions-js/push@master
+        uses: actions-js/push@968f4695ca558093eadb24ad83cc5891f47e0cdc # master
         with:
           github_token: '${{ secrets.TEST_TOKEN }}'
           repository: ${{ env.TEST_REPO_ORG }}/${{ env.TEST_REPO_NAME }}
@@ -90,7 +93,7 @@ jobs:
 
       - name: Testspace client install & config
         id: testspace_init
-        uses: testspace-com/setup-testspace@v1
+        uses: testspace-com/setup-testspace@5fc620521eddeba83c1c0dd58f5a524adf474c93 # v1
         with:
           domain: ${{ github.repository_owner }}
 

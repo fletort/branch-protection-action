@@ -1,8 +1,8 @@
-const axios = require('axios')
-const fs = require('fs/promises')
-const YAML = require('yaml')
+import axios from 'axios'
+import { access, constants, readFile } from 'fs/promises'
+import { parse } from 'yaml'
 
-function isValidUrl(urlString) {
+export function isValidUrl(urlString) {
   const urlPattern = new RegExp(
     '^(https?:\\/\\/)?' + // validate protocol
       '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // validate domain name
@@ -15,7 +15,7 @@ function isValidUrl(urlString) {
   return !!urlPattern.test(urlString)
 }
 
-async function downloadFileContent(url) {
+export async function downloadFileContent(url) {
   let fileData = null
   try {
     const response = await axios.get(url, { responseType: 'arraybuffer' })
@@ -39,12 +39,12 @@ async function downloadFileContent(url) {
   return fileData
 }
 
-async function readFileContent(filePath) {
+export async function readFileContent(filePath) {
   let fileData = null
   try {
-    await fs.access(filePath, fs.constants.F_OK)
+    await access(filePath, constants.F_OK)
     console.debug('File exists')
-    fileData = await fs.readFile(filePath)
+    fileData = await readFile(filePath)
     fileData = fileData.toString()
   } catch {
     console.debug('File does not exist or Read Error')
@@ -58,7 +58,7 @@ async function readFileContent(filePath) {
  * @param {string} branches File or Link or Definition
  * @returns {Promise<string>} Resolves with 'done!' after the wait is over.
  */
-async function load(branches) {
+export async function load(branches) {
   let data = null
   let definition = null
 
@@ -83,7 +83,7 @@ async function load(branches) {
 
   try {
     if (definition == null) {
-      definition = YAML.parse(data)
+      definition = parse(data)
       console.debug('input is parsed as YAML')
     }
   } catch {
@@ -92,5 +92,3 @@ async function load(branches) {
 
   return definition
 }
-
-module.exports = { isValidUrl, downloadFileContent, readFileContent, load }

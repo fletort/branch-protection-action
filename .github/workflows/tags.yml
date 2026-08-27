@@ -14,5 +14,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: vweevers/additional-tags-action@v2
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: vweevers/additional-tags-action@3bab55b44e81186dcfef7db9f2cbca01a78eb710 # v2

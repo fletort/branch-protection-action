@@ -11,7 +11,7 @@ Action used to create branches and optional associated protection.
 ## Behaviour
 
 - Create the specified branch if not existing.
-- If requested, permission can be added on some branches. Theses permission can
+- If requested, permission can be added on some branches. These permission can
   be defined in JSON or YAML format and can be describe in a local/remote file,
   or directly in the input.
 
@@ -41,7 +41,7 @@ The definition is wrote directly in the action inputs.
           required_pull_request_reviews: {
             "required_approving_review_count": 0
           }
-          restrictions:  
+          restrictions:
       toto:
         baseBranch: anotherBranch
 ```
@@ -56,7 +56,7 @@ version in the format `@v1.x.x` or `@v1.x`.
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
 | repository          | Repository to create and/or init. Indicate the repository name with owner.                                                                                                | **Required** |
 | branches            | JSON or YAML branches description. The definition can be directly done, through a local file or a distant one (web link). [See description below](#branches-description). | **Required** |
-| token               | Token with the Content and Repository Administation write permission. [See below](#token)                                                                                 | **Required** |
+| token               | Token with the Content and Repository Administration write permission. [See below](#token)                                                                                | **Required** |
 | default_base_branch | The branch used by default to create new branch listed by `branches` input. Can be ovveriden by the `branches` description.                                               | `main`       |
 
 #### token
@@ -73,7 +73,7 @@ The token must have the following permissions:
 ##### Format
 
 Branches definition can be wrote in JSON or YAML format. It is a list of branch
-(key is the name of the branch) that containes following optional information :
+(key is the name of the branch) that contains following optional information :
 
 | Clé        | Contenu                                                                                                                                                                                                                                | Default                                                             |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
@@ -109,11 +109,11 @@ another_branch_name:
 
 ##### Input
 
-The input can be directly the data as show in the exemple upper, a local file,
+The input can be directly the data as show in the example upper, a local file,
 or a remote file:
 
 - local file: The file must be inside the repository calling the action and can
-  be a YAML or json file.
+  be a YAML or JSON file.
 
 ```yaml
 - uses: fletort/branch-protection-action@v1
@@ -125,14 +125,14 @@ or a remote file:
 
 - remote file: The file must available on a public web link.
 
-For example we can use the file available on anoter repository:
+For example we can use the file available on another repository:
 
 ```yaml
 - uses: fletort/branch-protection-action@v1
   with:
     repository: the_owner/the_repo_name
     token: ${{ secrets.token }}
-    branches: https://raw.githubusercontent.com/owner/anoter-repo/refs/heads/main/branch-perm.yml
+    branches: https://raw.githubusercontent.com/owner/another-repo/refs/heads/main/branch-perm.yml
 ```
 
 ## Code Quality

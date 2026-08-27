@@ -1,21 +1,38 @@
 /**
  * Unit tests for src/definition.js
  */
-const {
-  isValidUrl,
-  downloadFileContent,
-  readFileContent,
-  load
-} = require('../src/definition')
-const { expect } = require('@jest/globals')
+import { jest, expect } from '@jest/globals'
+
+// 1. Mocks should be declared before the module being tested is imported.
 
 // Mock the axios library
-const axios = require('axios')
-jest.mock('axios')
+jest.unstable_mockModule('axios', () => {
+  return {
+    default: {
+      get: jest.fn(),
+      post: jest.fn()
+    }
+  }
+})
 
 // Mock the fs library
-const fs = require('fs/promises')
-jest.mock('fs/promises')
+jest.unstable_mockModule('fs/promises', () => {
+  const actualFs = jest.requireActual('fs/promises')
+  return {
+    access: jest.fn(),
+    readFile: jest.fn(),
+    constants: actualFs.constants
+  }
+})
+
+// 2. Import dynamically Mocked Modules
+const axios = (await import('axios')).default
+const fs = await import('fs/promises')
+
+// -- 3. The module being tested should be imported dynamically.
+const definitionModule = await import('../src/definition.js')
+const { isValidUrl, downloadFileContent, readFileContent, load } =
+  definitionModule
 
 describe('definition.isValidUrl', () => {
   it('detects some valid url', () => {
