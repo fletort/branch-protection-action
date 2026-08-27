@@ -36,11 +36,11 @@ jobs:
           gh repo delete ${{ env.TEST_REPO_ORG }}/${{ env.TEST_REPO_NAME }} --yes || true
 
       - name: Prerequisite - Create Test Repository
-        uses: f1lander/create-repository-action@790b25d255717b5a81416a8390f3344396181805 # v1.0.2
-        with:
-          name: '${{ env.TEST_REPO_NAME }}'
-          org: '${{ env.TEST_REPO_ORG }}'
-          access-token: '${{ secrets.TEST_TOKEN }}'
+        shell: bash
+        run: |
+          gh repo create ${{ env.TEST_REPO_ORG }}/${{ env.TEST_REPO_NAME }} --public --add-readme
+        env:
+          GH_TOKEN: ${{ secrets.TEST_TOKEN }}
 
       - name: Prerequisite - Checkout Test Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
