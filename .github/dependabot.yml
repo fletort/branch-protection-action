@@ -22,6 +22,14 @@ updates:
     schedule:
       interval: daily
     groups:
+      eslint-major:
+        patterns:
+          - 'eslint'
+          - '@eslint/*'
+          - 'eslint-*'
+          - '@typescript-eslint/*'
+        update-types:
+          - major
       npm-development:
         dependency-type: development
         update-types:
