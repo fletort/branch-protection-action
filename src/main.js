@@ -1,12 +1,13 @@
-const core = require('@actions/core')
-const { load } = require('./definition')
-const { GitHub } = require('./github')
+import * as core from '@actions/core'
+import { load } from './definition.js'
+import { GitHub } from './github.js'
 
 /**
  * The main function for the action.
+ *
  * @returns {Promise<void>} Resolves when the action is complete.
  */
-async function run() {
+export async function run() {
   try {
     const def = core.getInput('branches', { required: true })
     const full_repo = core.getInput('repository', { required: true })
@@ -60,10 +61,8 @@ async function run() {
     }
   } catch (error) {
     // Fail the workflow run if an error occurs
-    core.setFailed(error.message)
+    if (error instanceof Error) {
+      core.setFailed(error.message)
+    }
   }
-}
-
-module.exports = {
-  run
 }

@@ -4,18 +4,23 @@ updates:
     directory: /
     target-branch: develop
     schedule:
-      interval: weekly
+      interval: daily
     groups:
       actions-minor:
         update-types:
           - minor
           - patch
+      codeql-all:
+        patterns:
+          - 'github/codeql-action/*'
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: npm
     directory: /
     target-branch: develop
     schedule:
-      interval: weekly
+      interval: daily
     groups:
       npm-development:
         dependency-type: development
@@ -26,3 +31,5 @@ updates:
         dependency-type: production
         update-types:
           - patch
+    cooldown:
+      default-days: 7

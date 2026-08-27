@@ -28,21 +28,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout the repository.
       - name: Checkout
         id: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
+      # Setup Node.js using the version specified in `.node-version`.
       - name: Setup Node.js
         id: setup-node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .node-version
           cache: npm
 
+      # Install dependencies using `npm ci`.
       - name: Install Dependencies
         id: install
         run: npm ci
 
+      # Build the `dist/` directory.
       - name: Build dist/ Directory
         id: build
         run: npm run bundle
@@ -68,7 +74,7 @@ jobs:
       - if: ${{ failure() && steps.diff.outcome == 'failure' }}
         name: Upload Artifact
         id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: dist
           path: dist/

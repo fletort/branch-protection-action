@@ -1,24 +1,30 @@
 /**
  * Unit tests for the action's main functionality, src/main.js
+ *
+ * To mock dependencies in ESM, you can create fixtures that export mock
+ * functions and objects. For example, the core module is mocked in this test,
+ * so that the actual '@actions/core' module is not imported.
  */
-const core = require('@actions/core')
-const main = require('../src/main')
+import { jest } from '@jest/globals'
+// Import mock fixtures
+import * as coreFixture from '../__fixtures__/core.js'
 
-// Mock the GitHub Actions core library
-const debugMock = jest.spyOn(core, 'debug').mockImplementation()
-const getInputMock = jest.spyOn(core, 'getInput').mockImplementation()
-const setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
-const setOutputMock = jest.spyOn(core, 'setOutput').mockImplementation()
+// -- 1. Mocks should be declared before the module being tested is imported.
+
+// Mock the core module to avoid importing the actual '@actions/core' module
+jest.unstable_mockModule('@actions/core', () => coreFixture)
 
 // Mock internal Definition Parser library
-const { load } = require('../src/definition')
-jest.mock('../src/definition')
+jest.unstable_mockModule('../src/definition.js', () => {
+  return {
+    load: jest.fn() // Add as a basic mocked function
+  }
+})
 
 // Mock internal GitHub Library
-const { GitHub } = require('../src/github')
 const mockCreateBranch = jest.fn()
 const mockSetBranchPermission = jest.fn()
-jest.mock('../src/github', () => {
+jest.unstable_mockModule('../src/github.js', () => {
   return {
     GitHub: jest.fn().mockImplementation(() => {
       return {
@@ -29,8 +35,20 @@ jest.mock('../src/github', () => {
   }
 })
 
-// Mock the tested action's main function
-const runMock = jest.spyOn(main, 'run')
+// -- 2. Import dynamically Mocked Modules
+const githubModule = await import('../src/github.js')
+const { GitHub } = githubModule
+
+const definitionModule = await import('../src/definition.js')
+const { load } = definitionModule
+
+const core = await import('@actions/core')
+const getInputMock = core.getInput
+const setFailedMock = core.setFailed
+
+// -- 3. The module being tested should be imported dynamically. This ensures that the
+// mocks are used in place of any actual dependencies.
+const main = await import('../src/main.js')
 
 describe('action', () => {
   beforeEach(() => {
@@ -39,7 +57,7 @@ describe('action', () => {
 
   it('Parse the given definition, Create the Branch on the default base branch then Apply the given Permission', async () => {
     // Set the action's inputs as return values from core.getInput()
-    getInputMock.mockImplementation(name => {
+    getInputMock.mockImplementation((name) => {
       switch (name) {
         case 'repository':
           return 'MyTestOwner/MyTestRepo'
@@ -62,7 +80,6 @@ describe('action', () => {
     )
 
     await main.run()
-    expect(runMock).toHaveReturned()
     expect(GitHub).toHaveBeenCalledWith(
       'MyTestOwner',
       'MyTestRepo',
@@ -79,7 +96,7 @@ describe('action', () => {
 
   it('Parse the given definition, Create the Branch on the specific base branch then Apply the given Permission', async () => {
     // Set the action's inputs as return values from core.getInput()
-    getInputMock.mockImplementation(name => {
+    getInputMock.mockImplementation((name) => {
       switch (name) {
         case 'repository':
           return 'MyTestOwner/MyTestRepo'
@@ -103,7 +120,6 @@ describe('action', () => {
     )
 
     await main.run()
-    expect(runMock).toHaveReturned()
     expect(GitHub).toHaveBeenCalledWith(
       'MyTestOwner',
       'MyTestRepo',
@@ -123,7 +139,7 @@ describe('action', () => {
 
   it('Dont create permission when permission is not given for a branch', async () => {
     // Set the action's inputs as return values from core.getInput()
-    getInputMock.mockImplementation(name => {
+    getInputMock.mockImplementation((name) => {
       switch (name) {
         case 'repository':
           return 'MyTestOwner/MyTestRepo'
@@ -146,7 +162,6 @@ describe('action', () => {
     )
 
     await main.run()
-    expect(runMock).toHaveReturned()
     expect(GitHub).toHaveBeenCalledWith(
       'MyTestOwner',
       'MyTestRepo',
@@ -163,7 +178,7 @@ describe('action', () => {
 
   it('Dont create permission when nothing is given for a branch', async () => {
     // Set the action's inputs as return values from core.getInput()
-    getInputMock.mockImplementation(name => {
+    getInputMock.mockImplementation((name) => {
       switch (name) {
         case 'repository':
           return 'MyTestOwner/MyTestRepo'
@@ -184,7 +199,6 @@ describe('action', () => {
     )
 
     await main.run()
-    expect(runMock).toHaveReturned()
     expect(GitHub).toHaveBeenCalledWith(
       'MyTestOwner',
       'MyTestRepo',
@@ -198,7 +212,7 @@ describe('action', () => {
 
   it('Fail when error occurs', async () => {
     // Set the action's inputs as return values from core.getInput()
-    getInputMock.mockImplementation(name => {
+    getInputMock.mockImplementation((name) => {
       switch (name) {
         case 'repository':
           return 'MyTestOwner/MyTestRepo'
@@ -217,13 +231,12 @@ describe('action', () => {
     })
 
     await main.run()
-    expect(runMock).toHaveReturned()
     expect(setFailedMock).toHaveBeenCalledWith('MyTestDescriptionError')
   })
 
   it('Fail when malformatted repository is given', async () => {
     // Set the action's inputs as return values from core.getInput()
-    getInputMock.mockImplementation(name => {
+    getInputMock.mockImplementation((name) => {
       switch (name) {
         case 'repository':
           return 'MyTestOwner'
@@ -239,7 +252,6 @@ describe('action', () => {
     })
 
     await main.run()
-    expect(runMock).toHaveReturned()
     expect(setFailedMock).toHaveBeenCalled()
   })
 })

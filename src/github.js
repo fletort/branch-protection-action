@@ -1,6 +1,6 @@
-const { Octokit } = require('@octokit/rest')
+import { Octokit } from '@octokit/rest'
 
-class GitHub {
+export class GitHub {
   constructor(owner, repo, token) {
     this.octokit = new Octokit({
       auth: token
@@ -10,7 +10,7 @@ class GitHub {
   }
 
   async getBranch(branchName) {
-    // Permission: "Contents" repository permissions (read) (OR PUBLIC ressource)
+    // Permission: "Contents" repository permissions (read) (OR PUBLIC resource)
     try {
       const result = await this.octokit.rest.git.getRef({
         owner: this.owner,
@@ -22,14 +22,14 @@ class GitHub {
       }
       if (result.status !== 404) {
         throw new Error(
-          `Error when trying to chek for branch: ${result.status}`
+          `Error when trying to check for branch: ${result.status}`
         )
       }
     } catch (error) {
       if (error.status) {
         if (error.status !== 404) {
           throw new Error(
-            `Error when trying to chek for branch: ${error.status}`
+            `Error when trying to check for branch: ${error.status}`
           )
         }
       } else {
@@ -87,5 +87,3 @@ class GitHub {
     }
   }
 }
-
-module.exports = { GitHub }

@@ -22,11 +22,13 @@ jobs:
     steps:
       - name: Checkout
         id: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
         id: setup-node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .node-version
           cache: npm
@@ -45,18 +47,19 @@ jobs:
 
       - name: Test
         id: npm-ci-test
-        uses: ArtiomTr/jest-coverage-report-action@v2
+        uses: ArtiomTr/jest-coverage-report-action@7f750dd50f5585533321eb7ebc482b936b49a5d4 # v2
         with:
           skip-step: install
+          test-script: npm run ci-test
 
       - name: Publish Coverage Report to Coveralls.io
         if: always() && hashFiles('coverage/**') != ''
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2
 
       - name: Testspace client install & config
         id: testspace_init
         if: always() && hashFiles('test-results/**') != ''
-        uses: testspace-com/setup-testspace@v1
+        uses: testspace-com/setup-testspace@5fc620521eddeba83c1c0dd58f5a524adf474c93 # v1
         with:
           domain: ${{github.repository_owner}}
 
