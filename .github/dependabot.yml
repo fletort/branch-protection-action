@@ -10,6 +10,9 @@ updates:
         update-types:
           - minor
           - patch
+      codeql-all:
+        patterns:
+          - 'github/codeql-action/*'
     cooldown:
       default-days: 7
 
